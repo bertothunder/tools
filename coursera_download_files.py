@@ -89,16 +89,7 @@ def parseCmdlineOptions():
     # Option parsing from command line will be performed later
     return options
 
-if __name__ == '__main__':
-    try:
-        os.mkdir(dirname)
-    except OSError:
-        pass
-
-    coursera_course_url = 'https://class.coursera.org/progfun-005/lecture'
-
-    # Set up mechanize to perform login and handle redirection to the download area.
-    br = mechanize.Browser()
+def login(browser):
     br.set_handle_robots(False)
     # Set cookie container
     cj = cookielib.CookieJar()
@@ -112,8 +103,34 @@ if __name__ == '__main__':
                      ('Accept-Language', 'en-US,en;q=0.8'),                     
                      ('Accept-Charset', 'ISO-8859-1,utf-8;q=0.7,*;q=0.3'),
                     ]
+
+    logger = logging.getLogger("mechanize")
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+    logger.setLevel(logging.DEBUG)
+
     # Set the login url for coursera, the final url for the lectures is enclosed within the url here.
     br.open('https://accounts.coursera.org/signin?course_id=973439&r=https%3A%2F%2Fclass.coursera.org%2Fprogfun-005%2Flecture&user_action=class&topic_name=Functional%20Programming%20Principles%20in%20Scala')
+
+    soup = BeautifulSoup(response.get_data())
+
+    # Look for the right parts in the login form and fill them. Click in the button
+    soup.select("signin-email").string("my-username")
+    soup.select("signin-password").string("my-password")
+    soup.select("btn bt-success coursera-signin-button").
+
+
+if __name__ == '__main__':
+    try:
+        os.mkdir(dirname)
+    except OSError:
+        pass
+
+    coursera_course_url = 'https://class.coursera.org/progfun-005/lecture'
+
+    # Set up mechanize to perform login and handle redirection to the download area.
+    br = mechanize.Browser()
+    if login(br):
+        pass
 
     etags = dumbdbm.open(os.path.join(dirname, 'etag_db'))
     try:    
